@@ -1,0 +1,150 @@
+<html>
+    <head>
+        <!--Import the JQuery library-->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+        <!--Title of the tab for the Web App-->
+        <title>
+            Weather Tracker
+        </title>
+
+        
+        <style>
+
+            /*Style the background image and the font size for the web application*/
+            body{
+                background-image: url("clouds.jpg");
+                background-repeat: no-repeat;
+                background-size: cover;
+                color: white;
+                font-size: 1rem;
+            }
+
+            /*Style the table to hold all the information*/
+            tr, th{
+                border: 1px solid white;
+            }
+        </style>
+
+    </head>
+
+
+    <body>
+
+        <!--Set up the layout of the page-->
+        <center>
+            <input type="text" id="country" style="font-size: 1.5rem; display: block" placeholder="Search here...">
+            <br>
+            <button type="submit" onclick="showWeather()" style="background-color: lightgreen; font-size: 1.2rem; border: none; color: white; padding: 1%">Enter</button>
+        <br><br>
+
+
+        <!--Set up a table to display the different attributes-->
+        <table class="tableHeading" style="display: none">
+            <tr>
+                <!--Tabel Headings-->
+                <th>Name</th>
+                <th>Country</th>
+                <th>Flag</th>
+                <th>Weather Description</th>
+                <th>Temp</th>
+                <th>Weather Icon</th>
+            </tr>
+            <tr>
+                <!--Table entries for each of the headings-->
+                <th id="displayName"></th>
+                <th id="displayCountry"></th>
+                <th id="displayFlag"></th>
+                <th id="displayWeather"></th>
+                <th id="displayTemp"></th>
+                <th id="displayIcon"></th>
+            </tr>
+        </table>
+
+        <!--For the Map to be displayed-->
+        <p id="displayMap"></p>
+
+        </center>
+
+
+        <script>
+            //functionality of the onclick button
+            function showWeather(){
+
+            //As soon as the user clicks the button then display the table headings
+            var elements = document.getElementsByClassName('tableHeading');
+            
+            /*Display each of the table headings and entries*/
+            for (var i=0;i<elements.length;i+=1){
+                elements[i].style.display = 'initial';
+            }
+
+                //get the input from the user
+                var country = document.getElementById("country").value
+
+                //get the JSON from the open weather map with user value inserted
+                $.getJSON("https://api.openweathermap.org/data/2.5/weather?q=" + country + "&APPID=cd1c562494396099863938a653acf0bf", function(data){
+                    
+                //display the name of the place
+                document.getElementById("displayName").innerHTML=data.name;
+
+                //display the country that the place is in
+                document.getElementById("displayCountry").innerHTML=data.sys.country;
+                
+                //get the relevant data - weather description, temperature
+                document.getElementById("displayWeather").innerHTML=data.weather[0].description;
+
+                //display the temperature
+                document.getElementById("displayTemp").innerHTML=Math.round((data.main.temp-273.15)) + "*C";
+
+                //display the current weather icon of the user's desired location
+                //first of all remove the previous image
+                document.getElementById("displayIcon").innerHTML="";
+
+                var icon = "https://openweathermap.org/img/w/" + data.weather[0].icon + ".png";
+                var displayWeatherIcon = document.getElementById("displayIcon");
+                var iconImg = document.createElement('img');
+                iconImg.setAttribute('src', icon);
+                
+                //add the new image
+                displayWeatherIcon.appendChild(iconImg);
+
+                //display the flag of the user's desired location - uses Country Flags API which does not require an API key
+                 //first of all remove the previous flag
+                 document.getElementById("displayFlag").innerHTML="";
+
+                var flag = "https://www.countryflags.io/"+data.sys.country+"/flat/64.png";
+                var displayFlagIcon = document.getElementById("displayFlag");
+                var flagImg= document.createElement('img');
+                flagImg.setAttribute('src', flag);
+
+                //add the new flag
+                displayFlagIcon.appendChild(flagImg);
+                
+                //display the a map with the users entered location in an iframe
+                //first of all remove the previous iframe
+                document.getElementById("displayMap").innerHTML="";
+
+                //******NEED TO SIGN UP TO BING MAPS AND USE API TO GET LOCATION
+                //NEED TO FIGURE OUT HOW TO GET MAP TO USE % SO RESPONSIVE FOR MOBILE
+                var location = "https://www.bing.com/maps/embed?h=500&w=500&cp="+data.coord.lat+"~"+data.coord.lon+"&lvl=11&typ=d&sty=r&src=SHELL&FORM=MBEDV8"
+                var displayCountryLocation = document.getElementById("displayMap");
+                var mapFrame = document.createElement('iframe');
+                mapFrame.setAttribute('src', location);
+
+                //Set the dimensions of the iframe to be the same as the map
+                //Need to figure out how to do this using %'s'
+                mapFrame.setAttribute('height', '500');
+                mapFrame.setAttribute('width', '500');
+
+                displayCountryLocation.appendChild(mapFrame);
+
+                });
+            }
+
+        </script>
+
+    </body>
+
+
+</html>
